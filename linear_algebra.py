@@ -151,6 +151,42 @@ def lower_triangular(A, b):
     else:
         print('Error: the matrix is not square\nUnable to solve the system of linear equation')
     
+def lu_fact(A):
+    """
+    LU factorization of a square matrix.
+
+    Parameters
+    ----------
+    A : bidimensional array
+        Square, non-singular matrix.
+
+    Returns
+    -------
+    L : bidimensional array
+        Special lower triangular matrix.
+    U : bidimensional array
+        Upper triangular matrix extracted from A.
+
+    """
+    [m,n] = shape(A)
+    if m == n:
+        A = copy(A)
+        L = identity(n)
+        for k in range(0, n-1):
+            if laplace(leading_principal_submatrix(A, k)) == 0:
+                print('Warning: the matrix is singular\nUnable to decompose the matrix')
+                return
+            for i in range(k+1, n):
+                mik = -A[i,k]/A[k,k]
+                for j in range(k+1, n):
+                    A[i,j] = A[i,j]+mik*A[k,j]
+                L[i,k] = -mik
+        U = triu(A)
+        return L, U          
+    else:
+         print('Error: the matrix is not square\nUnable to decompose the matrix')
+         return
+       
 
 #TEST UPPER TRIANGULAR LINEAR SYSTEM
 # A = array([[1, -2, 3], [0, -10, 13], [0, 0, 1]])
@@ -161,4 +197,7 @@ def lower_triangular(A, b):
 # A = array([[1, 0, 0], [-10, 13, 0], [1, -2, 3]])
 # b = [2, 6, 1]
 # x = [2, 2, 1]
+
+#TEST SQUARE MATRICES
+# A = array([[1, -2, 3], [4, -10, 13], [5, 1, 1]])
 
