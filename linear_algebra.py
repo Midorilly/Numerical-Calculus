@@ -86,4 +86,79 @@ def laplace(A):
         return d            
     else:
         print('Warning: The input matrix is not square\nUnable to compute its determinant')
+        
+def upper_triangular(A, b):
+    """
+    Algorithm for back substitution for resolving upper triangular linear system
+
+    Parameters
+    ----------
+    A : bidimensional array
+        Upper triangular matrix of coefficients. Must be a square matrix
+    b : array
+        Columns vector m-by-1 of known terms. 
+
+    Returns
+    -------
+    x : array
+        Column vector n-by-1 of solutions of the linear system.
+    """
+    [m,n] = shape(A)
+    if m == n:
+        x = zeros((n,1))
+        if laplace(A) == 0: #det(A) != 0 iff A[i,i] != 0 for i in range(0, n-1)
+            print('Warning: the matrix is singular\nUnable to solve the system of linear equation')
+            return nan
+        else:
+            for i in range(m-1, -1, -1):
+                sum = 0
+                for j in range(i+1, n):
+                    sum = sum + A[i,j]*x[j,0]   
+                x[i,0] = (b[i]-sum)/A[i,i]
+            return x
+    else:
+        print('Error: the matrix is not square\nUnable to solve the system of linear equation')
+            
+def lower_triangular(A, b):
+    """
+    Algorithm for forward substitution for resolving lower triangular linear system
+
+    Parameters
+    ----------
+    A : bidimensional array
+        Lower triangular matrix of coefficients. Must be a square matrix
+    b : array
+        Columns vector m-by-1 of known terms. 
+
+    Returns
+    -------
+    x : array
+        Column vector n-by-1 of solutions of the linear system.
+    """
+    [m,n] = shape(A)
+    if m == n:
+        x = zeros((n,1))
+        if laplace(A) == 0: #det(A) != 0 iff A[i,i] != 0 for i in range(0, n-1)
+            print('Warning: the matrix is singular\nUnable to solve the system of linear equation')
+            return nan
+        else:
+            for i in range(0, m):
+                sum = 0
+                for j in range(0, i):
+                    sum = sum + A[i,j]*x[j,0]   
+                x[i,0] = (b[i]-sum)/A[i,i]
+            return x
+    else:
+        print('Error: the matrix is not square\nUnable to solve the system of linear equation')
     
+
+#TEST UPPER TRIANGULAR LINEAR SYSTEM
+# A = array([[1, -2, 3], [0, -10, 13], [0, 0, 1]])
+# b = [1, 6, 2]
+# x = [-1, 2, 2]
+
+#TEST LOWER TRIANGULAR LINEAR SYSTEM
+# A = array([[1, 0, 0], [-10, 13, 0], [1, -2, 3]])
+# b = [2, 6, 1]
+# x = [2, 2, 1]
+
