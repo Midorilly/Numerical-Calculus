@@ -6,20 +6,20 @@ Created on Tue Jul 20 23:44:04 2021
 """
 from numpy import sin, cos, exp
 
-def bisezioni(f, a, b, tol=1e-10, itmax=100):
+def bisezione(f, a, b, tol=1e-10, itmax=100):
     """
-    Metodo delle bisezioni
+    Bisection method
     
     Parameters
     ----------
     f : function
-        Funzione di cui calcolare lo zero.
+        Funzione di cui cercare lo zero
     a, b : float
         Intervallo in cui calcolare lo zero di f
     tol : float
         Precisione richiesta. The default is 1e-10.
     itmax : int
-        Numero assimo di iterate consentite. The default is 100.
+        Numero massimo di iterate consentite. The default is 100.
 
     Returns
     -------

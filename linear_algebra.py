@@ -5,14 +5,13 @@ Created on Thu Jul 22 01:08:56 2021
 @author: angel
 """
 
-from numpy import dot, set_printoptions, transpose, matmul, nan, zeros, copy, identity, triu, shape, delete, array, hstack, vstack
+from numpy import dot, set_printoptions, transpose, nan, zeros, copy, identity, triu, shape, delete, array, hstack, vstack
 from numpy.linalg import inv
 
 set_printoptions(precision=4)
 
 def transposition(A):
     """
-    OK
     Transpose of a m-by-n matrix in a n-by-m matrix.
 
     Parameters
@@ -32,9 +31,8 @@ def transposition(A):
             T[j,i] = A[i,j]
     return T
 
-def leading_principal_submatrix(A, k):
+def leading_principal_submatrix(M, k):
     """
-    OK
     Leading principal sumbatrix of A only considers the first k rows and k columns of A
 
     Parameters
@@ -49,6 +47,7 @@ def leading_principal_submatrix(A, k):
     A : bidimensional array.
         Leading principal sumbatrix.
     """
+    A = copy(M)
     [m,n] = shape(A)
     if k>m:
         print('Error: the rows of the matrix are less than k\nChoose a different k')
@@ -56,16 +55,13 @@ def leading_principal_submatrix(A, k):
         print('Error: the columns of the matrix are less than k\nChoose a different k')
     else:    
         for i in range(m-1,k-1,-1):
-            #print(i)
             A = delete(A, i, axis=0)        
         for j in range(n-1,k-1,-1):
-            #print(j)
             A = delete(A, j, axis=1)
         return A
 
 def laplace(M):
     """
-    OK
     Laplace expansion for computing the determinant of a square matrix.
     Progression along the first row.
 
@@ -79,10 +75,11 @@ def laplace(M):
     det : float
         Determinant of A.
     """
+    tol=1e-10
     A = copy(M)
     [m,n] = shape(A)
-    if m == n:
-        if n == 1:
+    if abs(m-n)<tol:
+        if abs(n-1)<tol:
             det = A[0,0]
         else:
             det = 0
@@ -124,9 +121,8 @@ def rank(A):
             rank = rank + 1            
     return rank        
         
-def upper_triangular(A, b):
+def upper_triangular(M, v):
     """
-    OK
     Algorithm for back substitution for resolving upper triangular linear system
 
     Parameters
@@ -141,10 +137,13 @@ def upper_triangular(A, b):
     x : array
         Column vector n-by-1 of solutions of the linear system.
     """
+    tol=1e-10
+    A = copy(M)
+    b = copy(v)
     [m,n] = shape(A)
-    if m == n:
+    if abs(m-n)<tol:
         x = zeros((n))
-        if laplace(A) == 0: #det(A) != 0 iff A[i,i] != 0 for i in range(0, n-1)
+        if abs(laplace(A))<tol: #det(A) != 0 iff A[i,i] != 0 for i in range(0, n-1)
             print('Warning: the matrix is singular\nUnable to solve the system of linear equation')
             return nan
         else:
@@ -158,9 +157,8 @@ def upper_triangular(A, b):
     else:
         print('Error: the matrix is not square\nUnable to solve the system of linear equation')
             
-def lower_triangular(A, b):
+def lower_triangular(M, v):
     """
-    OK
     Algorithm for forward substitution for resolving lower triangular linear system
 
     Parameters
@@ -175,10 +173,13 @@ def lower_triangular(A, b):
     x : array
         Column vector n-by-1 of solutions of the linear system.
     """
+    tol=1e-10
+    A = copy(M)
+    b = copy(v)
     [m,n] = shape(A)
-    if m == n:
+    if abs(m-n)<tol:
         x = zeros((n,1))
-        if laplace(A) == 0: #det(A) != 0 iff A[i,i] != 0 for i in range(0, n-1)
+        if abs(laplace(A))<tol: #det(A) != 0 iff A[i,i] != 0 for i in range(0, n-1)
             print('Warning: the matrix is singular\nUnable to solve the system of linear equations')
             return nan
         else:
@@ -186,14 +187,13 @@ def lower_triangular(A, b):
                 sum = 0
                 for j in range(0, i):
                     sum = sum + A[i,j]*x[j,0]   
-                x[i,0] = (b[i]-sum)/A[i,i]
+                x[i,0] = (b[i]-sum)/A[i,i] #DA RIVEDERE
             return x
     else:
         print('Error: the matrix is not square\nUnable to solve the system of linear equations')
 
 def lu_fact(A):
     """
-    OK
     LU factorization of a square matrix.
 
     Parameters
@@ -209,11 +209,12 @@ def lu_fact(A):
         Upper triangular matrix extracted from A.
 
     """
+    tol=1e-15
     [m,n] = shape(A)
-    if m == n:
+    if abs(m-n)<tol:
         A = copy(A)
         L = identity(n)
-        tol=1e-15
+      
         for k in range(0, n-1):
             if abs(A[k,k])<tol:
                 print('Warning: the matrix is singular\nUnable to decompose the matrix')
@@ -231,17 +232,16 @@ def lu_fact(A):
      
 def echelon_form(M):
     """
-    ???? DA RIVEDERE
+    Transforms a matrix to its echelon form.
 
     Parameters
     ----------
-    M : TYPE
-        DESCRIPTION.
+    M : bidimensional array.
+        Matrix.
 
     Returns
     -------
-    TYPE
-        DESCRIPTION.
+    Echelon form matrix
 
     """
     # Base case
@@ -278,9 +278,8 @@ def echelon_form(M):
     # Riaggiungiamo la riga e la colonna rimossa al risultato dell'operazione
     return vstack([M[:1], hstack([M[1:,:1], MR])])        
     
-def inverse_linear_system(A, b):
+def inverse_linear_system(M, v):
     """
-    OK
     Solves a linear system when A is a square, non-singular matrix computing x = A^-1*b
 
     Parameters
@@ -296,17 +295,20 @@ def inverse_linear_system(A, b):
         Column vector n-by-1 of solutions of the linear system.
 
     """
-    if laplace(A) != 0:
+    A = copy(M)
+    b = transpose(copy(v))
+    tol=1e-10
+    if abs(laplace(A))>=tol:
         Ai = inv(A)
+        print(Ai)
         x = dot(Ai,b)
         return x
     else: 
         print('Warning: the matrix is singular\nUnable to solve the system of linear equations')
         return nan
     
-def lu_linear_system(A, b):
+def lu_linear_system(M, v):
     """
-    OK
     Solves a linear system when A is a square matrix computing its LU factorization. 
 
     Parameters
@@ -322,18 +324,19 @@ def lu_linear_system(A, b):
         Column vector n-by-1 of solutions of the linear system.
 
     """
-    M = copy(A)
-    L, U = lu_fact(M)
-    print(L, U)
+    A = copy(M)
+    b = transpose(copy(v))
+    L, U = lu_fact(A)
+    print(L)
+    print(U)
     
     y = lower_triangular(L, b)
     x = upper_triangular(U, y)
        
     return x
     
-def gauss_elimination(A, b):
+def gauss_elimination(M, v):
     """
-    OK
     Implements Gauss elimination algorithm to solve m-equations, n-variable systems.
 
     Parameters
@@ -349,10 +352,10 @@ def gauss_elimination(A, b):
         Vector n-by-1 of variables.
 
     """
-    B = copy(A)
-    d = copy(b)
+    B = copy(M)
+    d = copy(v)
     
-    consistency, solution = is_consistent(A, b)
+    consistency, solution = is_consistent(M, v)
     if(consistency):
         parameter = []
         for i in range(0, solution):
@@ -407,7 +410,6 @@ def gauss_elimination(A, b):
     
 def pivot_index(M):
     """
-    DA RIVEDERE
     Parameters
     ----------
     M : bidimensional array
@@ -431,49 +433,8 @@ def pivot_index(M):
                 break
     return pivot_row, pivot_column
 
-def linear_least_squares(M, v):
-    """
-    OK
-    Solves the linear least squares problem.
-    If rank(A) is its maximum then the linear least squares problem has one unique solution, obtained
-    as solution of a n-equations, n-variables system AtAx = Atb, known as normal system
-    Parameters
-    ----------
-    A : bidimensional array
-        Matrix of coefficients. 
-    b : array
-        Columns vector m-by-1 of known terms. 
-
-    Returns
-    -------
-    x : array
-        Column vector n-by-1 of solutions of the linear system.
-
-    """
-   
-    B = copy(M)
-    [m,n] = shape(B)
-    if rank(B) != min(m,n):
-        print('Warning: can not be solved since the rank of the matrix is not its maximum value')
-        return nan
-    else:
-        
-        A = copy(M)
-        At = transpose(M)
-        b = copy(v)
-        b = transpose(b)
-        
-        AtA = dot(At, A)
-        Atb = transpose(dot(At, b))
-        print(AtA, Atb)
-        
-        x = gauss_elimination(AtA, Atb)
-        print('x*:')
-        return x
-
 def is_consistent(M, v):
     """
-    OK
     Determines whether a linear system is consistent (has at least a solution) or not. A linear system
     is consistent when the rank of matrix of coefficients and the rank of the complete matrix has
     the same value (Rouché-Capelli theorem)
@@ -526,18 +487,18 @@ def is_consistent(M, v):
 
 #TEST UPPER TRIANGULAR LINEAR SYSTEM
 # A = array([[1, -2, 3], [0, -10, 13], [0, 0, 1]])
-# b = [1, 6, 2]
+# b = array([1, 6, 2])
 # x = [-1, 2, 2]
 
 #TEST LOWER TRIANGULAR LINEAR SYSTEM
 # A = array([[1, 0, 0], [-10, 13, 0], [1, -2, 3]])
-# b = [2, 6, 1]
+# b = array([2, 6, 1])
 # x = [2, 2, 1]
 
 #TEST SQUARE MATRICES
-# A = array([[1, -2, 3], [4, -10, 13], [5, 1, 1]])
-# B = array([[1, 1, 0], [2, 1, 1], [3, 0, 1]])
-# C = array([[1, 0, 1], [-2, -3, 1], [3, 3, 0]])
+# A = array([[1, -2, 3], [4, -10, 13], [5, 1, 1]]) det = 17
+# B = array([[1, 1, 0], [2, 1, 1], [3, 0, 1]]) det = 2
+# C = array([[1, 0, 1], [-2, -3, 1], [3, 3, 0]]) det = 0
 # D = array([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]])
 # E = array([[-1,2,-1,2,3], [0,1,0,1,1], [-2,2,-2,1,3]], dtype=float)
 
@@ -550,10 +511,9 @@ def is_consistent(M, v):
 #b = array([[0,1,1]])
 
 #SQUARE_LINEAR_SYSTEM
-#B = array([[1, 1, 0], [2, 1, 1], [3, 0, 1]], dtype=float)
+#A = array([[1, 1, 0], [2, 1, 1], [3, 0, 1]], dtype=float)
 #b = array([[1,1,1]], dtype=float)
-#X = [0.5, 0.5, -0.5]
-
+#x* = [0.5, 0.5, -0.5]
 #A = array([[-1, 0, -2], [2,1,2], [-1,0,-2], [2,1,1], [3,1,3]], dtype=float)
 #b = array([[1,1,1,1,1]], dtype=float)
 #x* = [0, 9/5, -2/5]
